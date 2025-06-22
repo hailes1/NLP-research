@@ -23,32 +23,7 @@ def generate_response(query, results, query_type, model="gpt-3.5-turbo"):
         str: Generated response
     """
     context = "\n\n---\n\n".join([r["text"] for r in results])
-    
-    if query_type == "Factual":
-        system_prompt = """You are a helpful assistant providing factual information.
-    Answer the question based on the provided context. Focus on accuracy and precision.
-    If the context doesn't contain the information needed, acknowledge the limitations."""
-        
-    elif query_type == "Analytical":
-        system_prompt = """You are a helpful assistant providing analytical insights.
-    Based on the provided context, offer a comprehensive analysis of the topic.
-    Cover different aspects and perspectives in your explanation.
-    If the context has gaps, acknowledge them while providing the best analysis possible."""
-        
-    elif query_type == "Opinion":
-        system_prompt = """You are a helpful assistant discussing topics with multiple viewpoints.
-    Based on the provided context, present different perspectives on the topic.
-    Ensure fair representation of diverse opinions without showing bias.
-    Acknowledge where the context presents limited viewpoints."""
-        
-    elif query_type == "Contextual":
-        system_prompt = """You are a helpful assistant providing contextually relevant information.
-    Answer the question considering both the query and its context.
-    Make connections between the query context and the information in the provided documents.
-    If the context doesn't fully address the specific situation, acknowledge the limitations."""
-        
-    else:
-        system_prompt = """You are a helpful assistant. Answer the question based on the provided context. If you cannot answer from the context, acknowledge the limitations."""
+    system_prompt = """You are a helpful assistant. Answer the question based on the provided context. If you cannot answer from the context, acknowledge the limitations."""
     
     user_prompt = f"""
     Context:

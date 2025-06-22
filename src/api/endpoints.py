@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from api.models import Overview
-from research.retrieval.default_retrieval import standard_retrieval
+from research.default_retrieval import standard_retrieval
 router = APIRouter()
 
 @router.post("/chat")
