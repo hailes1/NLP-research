@@ -1,0 +1,5 @@
+- I want to be able to create a simple RAG pipeline on the following dataset 
+https://huggingface.co/datasets/jamescalam/ai-arxiv
+
+The above code base is heavily influenced by the following notebook
+https://github.com/FareedKhan-dev/all-rag-techniques/blob/main/12_adaptive_rag.ipynb
