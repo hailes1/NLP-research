@@ -3,8 +3,19 @@ from pydantic import BaseModel, Field
 class Overview(BaseModel):
     question: list = Field(
         default=[
-            "What are the talking points I can generate from the FACILITATING LARGE LANGUAGE MODELS TO MASTER 16000+ REAL-WORLD APIS paper?",
-            "What are some the most recent developments on AI?"
+            "What is the main topic of the document?",
+            "Can you summarize the key points?",
+            "What are the implications of the findings?",
+            "How does this relate to current events?",
+            "What are the future directions suggested by the document?"
         ],
         description="Default questions to be displayed."
+    )
+    request_id: str = Field(
+        default="",
+        description="Unique identifier for the request, used for tracking and logging purposes."
+    )
+    file_path: str = Field(
+        default="",
+        description="Path to the PDF file that contains the knowledge source."
     )
