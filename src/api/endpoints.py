@@ -3,7 +3,7 @@ from api.models import Overview
 import os
 
 from utils.logger_config import setup_logger
-from research.default_retrieval import standard_retrieval
+from research.default_retrieval import standard_retrieval, hybrid_search
 from utils.generate_request_id import RequestIDGenerator
 
 logger = setup_logger(__name__)
@@ -36,6 +36,23 @@ def chat(overview: Overview):
         {
             "query": result["query"],
             "response": result["standard_retrieval"]["response"]
+        }
+        for result in results["results"] 
+    ]
+    
+    return {
+        "Question": overview.question,
+        "results": simplified_results,
+    }
+
+@router.post("/chat/hybrid_search")
+def chat(overview: Overview):
+    results = hybrid_search(overview.file_path, overview.question)
+    logger.info(results)
+    simplified_results = [
+        {
+            "query": result["query"],
+            "response": result["hybrid_search"]["response"]
         }
         for result in results["results"] 
     ]

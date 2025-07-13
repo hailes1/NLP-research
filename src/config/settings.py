@@ -6,7 +6,6 @@ load_dotenv()
 
 class Settings:
     OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-    PDF_PATH = "research/2305.15334v1.pdf"
 
     # Initialize the OpenAI client
     @property
