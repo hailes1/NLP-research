@@ -5,5 +5,5 @@ from services.document_service import process_document
 from api.endpoints import router
 
 load_dotenv() 
-app = FastAPI(title="Retrieval Augument Generation: Document Retrieval", version="1.0.0")
+app = FastAPI(title="RAG Framework: Enhanced Document Understanding", version="1.0.0")
 app.include_router(router)

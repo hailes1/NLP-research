@@ -19,3 +19,8 @@ class Overview(BaseModel):
         default="",
         description="Path to the PDF file that contains the knowledge source."
     )
+class NewsQuery(BaseModel):
+    query: str = Field(
+        default="",
+        description="Search query for fetching news articles."
+    )

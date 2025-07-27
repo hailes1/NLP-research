@@ -1,4 +1,7 @@
 import fitz
+import requests
+from bs4 import BeautifulSoup
+import html2text
 from utils.logger_config import setup_logger
 
 logger = setup_logger(__name__)
@@ -54,3 +57,38 @@ def chunk_text(text, n, overlap):
     except Exception as e:
         logger.error("An error occurred while chunking the text: %s", e)
         raise e
+    
+def process_html_to_markdown(URL):
+    """
+    Converts the content of a webpage at the specified URL into Markdown format.
+
+    Args:
+        URL (str): The URL of the webpage to be converted.
+
+    Returns:
+        str: The Markdown-formatted content of the webpage, including the title
+             and main body content if identified, or an error message if extraction fails.
+    """
+    # Fetch the HTML content
+    response = requests.get(URL)
+    
+    if response.status_code == 200:
+        # Parse the HTML content
+        soup = BeautifulSoup(response.content, "html.parser")
+        
+        # Extract the title
+        title = soup.find("title").get_text()
+        
+        # Extract the main article content
+        article_body = soup.find("div", {"class": "article-body-commercial-selector"})
+        if article_body:
+            # Convert the HTML content to Markdown
+            markdown_converter = html2text.HTML2Text()
+            markdown_converter.ignore_links = False  # Keep links in the Markdown
+            markdown_content = markdown_converter.handle(str(article_body))
+            
+            return f"# {title}\n\n{markdown_content}"
+        else:
+            return "Could not find the article body in the HTML."
+    else:
+        return f"Failed to fetch the URL. Status code: {response.status_code}"
