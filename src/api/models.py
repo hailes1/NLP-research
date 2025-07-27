@@ -17,7 +17,7 @@ class Overview(BaseModel):
     )
     file_path: str = Field(
         default="",
-        description="Path to the PDF file that contains the knowledge source."
+        description="Path to the file that contains the knowledge source."
     )
 class NewsQuery(BaseModel):
     query: str = Field(

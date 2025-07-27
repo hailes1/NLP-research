@@ -50,11 +50,11 @@ def save_news_data(data):
     output_folder = "./data/todays_news"
     os.makedirs(output_folder, exist_ok=True)
     logger.info("Output directory '%s' is ready.", output_folder)
-
+    
+    content = []
     # Iterate through the URLs and save the Markdown content
     for index, web_url in enumerate(web_urls):
         logger.info("Processing URL %s", web_url)
-        
         try:
             markdown_content = process_html_to_markdown(web_url)  # Fetch the article content in Markdown format
 
@@ -65,8 +65,12 @@ def save_news_data(data):
             with open(file_path, "w") as md_file:
                 md_file.write(markdown_content)
             
+            content.append({
+                "document_id": index,
+                "content": markdown_content
+            })
             logger.info("Successfully saved article to %s", file_path)
         except Exception as e:
             logger.error("Failed to process and save URL %s: %s", web_url, str(e))
-
     logger.info("Completed saving all articles.")
+    return content

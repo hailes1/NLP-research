@@ -11,13 +11,19 @@ logger = setup_logger(__name__)
 
 router = APIRouter()
 
-@router.post("/upload_file", tags=["File-Upload"])
+@router.post("/upload_file", tags=["Upload"])
 async def upload_file(file: UploadFile = File(...)):
     """
-    Endpoint to upload a PDF file for further processing.
+    Upload a PDF file for processing.
+
+    This endpoint allows users to upload a PDF file that will be saved to the server
+    for further analysis. The function checks the file type to ensure it is a PDF
+    and saves the file to a designated directory, generating a unique request ID
+    for reference.
     """
     if file.content_type != "application/pdf":
-        raise logger.error(status_code=400, detail="The file provided doesn't meet the required format. Only PDF files are allowed.")
+        raise logger.error(status_code=400, 
+                           detail="The file provided doesn't meet the required format. Only PDF files are allowed.")
 
     file_path = f"data/{file.filename}"
     try:
@@ -26,7 +32,8 @@ async def upload_file(file: UploadFile = File(...)):
             f.write(await file.read())
         logger.info(f"File saved to {file_path}")
     except Exception as e:
-        raise logger.error(status_code=500, detail=f"Error saving file: {e}")
+        raise logger.error(status_code=500, 
+                           detail=f"Error saving file: {e}")
 
     logger.info(f"File {file.filename} uploaded successfully with content type {file.content_type}")
     request_id = RequestIDGenerator.generate_request_id()
@@ -34,10 +41,13 @@ async def upload_file(file: UploadFile = File(...)):
     return {"request_id": request_id, "file_path": file_path}
 
 
-@router.post("/chat/similarity_search", tags=["Rag-Search"])
+@router.post("/chat/similarity_search", tags=["Rag Research"])
 def chat(overview: Overview):
     """
-    Endpoint to perform similarity search on the uploaded PDF.
+    Perform similarity search on an uploaded PDF.
+
+    Utilizes standard retrieval methods to find content in the PDF that is similar
+    to the user's question, returning concise responses for easy evaluation.
     """
     results = standard_retrieval(overview.file_path, overview.question)
     simplified_results = [
@@ -45,7 +55,7 @@ def chat(overview: Overview):
             "query": result["query"],
             "response": result["standard_retrieval"]["response"]
         }
-        for result in results["results"] 
+        for result in results["results"]
     ]
     
     return {
@@ -54,10 +64,14 @@ def chat(overview: Overview):
     }
 
 
-@router.post("/chat/hybrid_search", tags=["Rag-Search"])
+@router.post("/chat/hybrid_search", tags=["Rag Research"])
 def chat(overview: Overview):
     """
-    Endpoint to perform hybrid search on the uploaded PDF.
+    Conduct a hybrid search on an uploaded PDF.
+
+    Combines multiple retrieval strategies to improve search relevancy on
+    the PDF content. Provides responses to the user's query based on these
+    advanced methods.
     """
     results = hybrid_search(overview.file_path, overview.question)
     logger.info(results)
@@ -66,7 +80,7 @@ def chat(overview: Overview):
             "query": result["query"],
             "response": result["hybrid_search"]["response"]
         }
-        for result in results["results"] 
+        for result in results["results"]
     ]
      
     return {
@@ -74,15 +88,18 @@ def chat(overview: Overview):
         "results": simplified_results,
     }
 
-
 @router.post("/news/recent", tags=["News"])
-def fetch_recent_news(newsquery: NewsQuery):
+def summarize_recent_news(newsquery: NewsQuery):
     """
-    Endpoint to fetch recent news and generate a small news update.
+    Fetch and summarize recent news articles.
+
+    Retrieves news articles based on a query from the Guardian API and summarizes
+    the content for quick updates. Provides a request ID for tracking these summaries.
+
     """
-    # Logic to fetch recent news and generate updates
+    logger.info("Fetching and summarizing news with query: '%s'", newsquery.query)
     request_id = RequestIDGenerator.generate_request_id()
     data = fetch_guardian_data(newsquery.query)
-    news_updates = save_news_data(data)
-    return {"news_updates": news_updates, 
+    #news_updates = save_news_data(data)
+    return {"news_updates": data, 
             "requestID": request_id}
