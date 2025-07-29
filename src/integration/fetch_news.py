@@ -33,6 +33,32 @@ def fetch_guardian_data(query):
         logger.info(f"Error: {response.status_code}, {response.text}")
         return None
     
+def fetch_nyt_data(section):
+    """
+    Fetch data from the NYT API based on a query and save it to a JSON file. 
+
+    Args: 
+        query (str): The search query for the NYT API.
+    
+    Returns: 
+        dict: The JSON response from the NYT API if successful, None otherwise. 
+
+    """
+    NYT_API_KEY = os.getenv("NYT_API_KEY")
+    url = f"https://api.nytimes.com/svc/topstories/v2/{section}.json?api-key={NYT_API_KEY}"
+
+    logger.info("Fetching data from NYT API with section: %s", section)
+
+    response = requests.get(url)
+
+    if response.status_code == 200:
+        response_data = response.json()
+        logger.info("Successfully fetched data from NYT API.")
+        return response_data
+    else:
+        logger.info(f"Error: {response.status_code}, {response.text}")
+        return None
+    
 def save_news_data(data):
     """
     Saves news articles from a list of URLs to individual Markdown files in a specified directory.

@@ -60,25 +60,26 @@ def chunk_text(text, n, overlap):
     
 def process_html_to_markdown(URL):
     """
-    Converts the content of a webpage at the specified URL into Markdown format.
+    Converts the content of a webpage at the specified URL into plain text format.
 
     Args:
         URL (str): The URL of the webpage to be converted.
 
     Returns:
-        str: The Markdown-formatted content of the webpage, including the title
+        str: The plain text content of the webpage, including the title
              and main body content if identified, or an error message if extraction fails.
     """
-    # Fetch the HTML content
-    response = requests.get(URL)
-    
-    if response.status_code == 200:
+    try:
+        # Fetch the HTML content
+        response = requests.get(URL)
+        response.raise_for_status()  # Raise an exception for HTTP errors
+
         # Parse the HTML content
         soup = BeautifulSoup(response.content, "html.parser")
-        
+
         # Extract the title
         title = soup.find("title").get_text()
-        
+
         # Extract the main article content
         article_body = soup.find("div", {"class": "article-body-commercial-selector"})
         if article_body:
@@ -86,9 +87,13 @@ def process_html_to_markdown(URL):
             markdown_converter = html2text.HTML2Text()
             markdown_converter.ignore_links = False  # Keep links in the Markdown
             markdown_content = markdown_converter.handle(str(article_body))
-            
-            return f"# {title}\n\n{markdown_content}"
+
+            # Remove newlines and extra spaces from the Markdown content
+            plain_text_content = " ".join(markdown_content.split())
+
+            return f"{title} - {plain_text_content}"
         else:
             return "Could not find the article body in the HTML."
-    else:
-        return f"Failed to fetch the URL. Status code: {response.status_code}"
+    except requests.RequestException as e:
+        logger.error("An error occurred while fetching the URL: %s", str(e))
+        return f"Failed to fetch the URL. Error: {str(e)}"

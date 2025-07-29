@@ -4,7 +4,7 @@ import os
 
 from utils.logger_config import setup_logger
 from research.default_retrieval import standard_retrieval, hybrid_search
-from integration.fetch_news import fetch_guardian_data, save_news_data
+from integration.fetch_news import fetch_guardian_data, fetch_nyt_data, save_news_data
 from utils.generate_request_id import RequestIDGenerator
 
 logger = setup_logger(__name__)
@@ -41,48 +41,34 @@ async def upload_file(file: UploadFile = File(...)):
     return {"request_id": request_id, "file_path": file_path}
 
 
-@router.post("/chat/similarity_search", tags=["Rag Research"])
+@router.post("/chat", tags=["Rag Research"])
 def chat(overview: Overview):
     """
     Perform similarity search on an uploaded PDF.
 
-    Utilizes standard retrieval methods to find content in the PDF that is similar
+    Utilizes standard retrieval and hybrid retrieval methods to find content in the PDF that is similar
     to the user's question, returning concise responses for easy evaluation.
     """
-    results = standard_retrieval(overview.file_path, overview.question)
-    simplified_results = [
-        {
-            "query": result["query"],
-            "response": result["standard_retrieval"]["response"]
-        }
-        for result in results["results"]
-    ]
-    
-    return {
-        "Question": overview.question,
-        "results": simplified_results,
-    }
+    if (overview.search_type == 'standard'):
+        results = standard_retrieval(overview.file_path, overview.question)
+        simplified_results = [
+            {
+                "query": result["query"],
+                "response": result["standard_retrieval"]["response"]
+            }
+            for result in results["results"]
+        ]
+    else: 
+        results = hybrid_search(overview.file_path, overview.question)
+        logger.info(results)
+        simplified_results = [
+            {
+                "query": result["query"],
+                "response": result["hybrid_search"]["response"]
+            }
+            for result in results["results"]
+        ]
 
-
-@router.post("/chat/hybrid_search", tags=["Rag Research"])
-def chat(overview: Overview):
-    """
-    Conduct a hybrid search on an uploaded PDF.
-
-    Combines multiple retrieval strategies to improve search relevancy on
-    the PDF content. Provides responses to the user's query based on these
-    advanced methods.
-    """
-    results = hybrid_search(overview.file_path, overview.question)
-    logger.info(results)
-    simplified_results = [
-        {
-            "query": result["query"],
-            "response": result["hybrid_search"]["response"]
-        }
-        for result in results["results"]
-    ]
-     
     return {
         "Question": overview.question,
         "results": simplified_results,
@@ -99,7 +85,9 @@ def summarize_recent_news(newsquery: NewsQuery):
     """
     logger.info("Fetching and summarizing news with query: '%s'", newsquery.query)
     request_id = RequestIDGenerator.generate_request_id()
-    data = fetch_guardian_data(newsquery.query)
-    #news_updates = save_news_data(data)
-    return {"news_updates": data, 
+    guardian_data = fetch_guardian_data(newsquery.query)
+    nyt_data = fetch_nyt_data(newsquery.query)
+    news_updates = save_news_data(guardian_data)
+    return {"guardian_news_updates": news_updates, 
+            "nyt_news_updates": nyt_data,
             "requestID": request_id}

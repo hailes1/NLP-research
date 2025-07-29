@@ -11,6 +11,10 @@ class Overview(BaseModel):
         ],
         description="Default questions to be displayed."
     )
+    search_type: str = Field(
+        default="standard",
+        description="Type of search to perform. Options include 'standard' for basic retrieval and 'hybrid' for BM25 vector search."
+    )
     request_id: str = Field(
         default="",
         description="Unique identifier for the request, used for tracking and logging purposes."
@@ -19,6 +23,7 @@ class Overview(BaseModel):
         default="",
         description="Path to the file that contains the knowledge source."
     )
+
 class NewsQuery(BaseModel):
     query: str = Field(
         default="",
