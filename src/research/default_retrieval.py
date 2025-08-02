@@ -16,7 +16,7 @@ logger = setup_logger(__name__)
 load_dotenv()
 client = settings.openai_client
 
-def similarity_search(pdf_path, test_queries, reference_answers=None):
+def similarity_search(pdf_path, chunking_strategy, test_queries, reference_answers=None):
     """
     standard retrieval on a set of test queries.
     
@@ -25,6 +25,7 @@ def similarity_search(pdf_path, test_queries, reference_answers=None):
     
     Args:
         pdf_path (str): Path to PDF document to be processed as the knowledge source
+        chunking_strategies (str): Chunking strategy for processing the document
         test_queries (List[str]): List of test queries to evaluate both retrieval methods
         reference_answers (List[str], optional): Reference answers for evaluation metrics
         
@@ -32,7 +33,7 @@ def similarity_search(pdf_path, test_queries, reference_answers=None):
         Dict: Evaluation results containing individual query results and overall comparison
     """
     logger.info("Starting the standard retrieval process")
-    chunks, vector_store = process_document(pdf_path)
+    chunks, vector_store = process_document(pdf_path, chunking_strategy)
     
     results = []
     try:
@@ -69,7 +70,7 @@ def similarity_search(pdf_path, test_queries, reference_answers=None):
         logger.error("An error occurred while performing the standard retrieval: %s", e)
         raise e 
     
-def hybrid_search(pdf_path, test_queries, reference_answers=None):
+def hybrid_search(pdf_path, chunking_strategy, test_queries, reference_answers=None):
     """
     Hybrid search on a set of test queries.
     
@@ -78,6 +79,7 @@ def hybrid_search(pdf_path, test_queries, reference_answers=None):
     
     Args:
         pdf_path (str): Path to PDF document to be processed as the knowledge source
+        chunking_strategies (str): Chunking strategy for processing the document
         test_queries (List[str]): List of test queries
         reference_answers (List[str], optional): Reference answers for evaluation metrics
         
@@ -85,7 +87,7 @@ def hybrid_search(pdf_path, test_queries, reference_answers=None):
         Dict: Evaluation results containing individual query results and overall comparison
     """
     logger.info("Starting the hybrid search process")
-    chunks, vector_store = process_document(pdf_path)
+    chunks, vector_store = process_document(pdf_path, chunking_strategy)
     
 
     results = []

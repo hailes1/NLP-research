@@ -1,4 +1,5 @@
 from services.data_utils import extract_text_from_pdf, chunk_text
+from research.chunking_strategies import fixed_size_chunking, semantic_chunking, structure_based_chunking
 from services.embedding_service import create_embeddings
 from services.vector_store import SimpleVectorStore
 from utils.logger_config import setup_logger
@@ -6,7 +7,7 @@ from utils.logger_config import setup_logger
 # Set up logger for this module
 logger = setup_logger(__name__)
 
-def process_document(pdf_path, chunk_size=1000, chunk_overlap=200):
+def process_document(pdf_path, chunking_strategy, chunk_size=1000, chunk_overlap=200):
     """
     Process a document for use with adaptive retrieval.
 
@@ -24,7 +25,12 @@ def process_document(pdf_path, chunk_size=1000, chunk_overlap=200):
 
     # Chunk the extracted text
     logger.info("Chunking text...")
-    chunks = chunk_text(extracted_text, chunk_size, chunk_overlap)
+    if chunking_strategy == "fixed":
+        chunks = fixed_size_chunking(extracted_text, chunk_size, chunk_overlap)
+    elif chunking_strategy == 'semantic':
+        chunks = semantic_chunking(extracted_text)
+    elif chunking_strategy == 'structure_based':
+        chunks = structure_based_chunking(extracted_text)
     logger.info(f"Created {len(chunks)} text chunks")
     
     # Create embeddings for the text chunks

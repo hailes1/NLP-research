@@ -50,7 +50,7 @@ def chat(overview: Overview):
     to the user's question, returning concise responses for easy evaluation.
     """
     if (overview.search_type == 'standard'):
-        results = similarity_search(overview.file_path, overview.question)
+        results = similarity_search(overview.file_path, overview.chunking_strategy, overview.question)
         simplified_results = [
             {
                 "query": result["query"],
@@ -59,7 +59,7 @@ def chat(overview: Overview):
             for result in results["results"]
         ]
     else: 
-        results = hybrid_search(overview.file_path, overview.question)
+        results = hybrid_search(overview.file_path, overview.chunking_strategy, overview.question)
         logger.info(results)
         simplified_results = [
             {

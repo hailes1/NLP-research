@@ -15,6 +15,10 @@ class Overview(BaseModel):
         default="standard",
         description="Type of search to perform. Options include 'standard' for basic retrieval and 'hybrid' for BM25 vector search."
     )
+    chunking_strategy: str = Field(
+        default="fixed",
+        description="Strategy used for chunking the document. Options include 'fixed', 'semantic or structure_based"
+    )
     request_id: str = Field(
         default="",
         description="Unique identifier for the request, used for tracking and logging purposes."
