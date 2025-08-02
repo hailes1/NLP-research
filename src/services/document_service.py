@@ -21,7 +21,7 @@ def process_document(pdf_path, chunk_size=1000, chunk_overlap=200):
     # Extract text from the PDF file
     logger.info("Extracting text from PDF...")
     extracted_text = extract_text_from_pdf(pdf_path)
-    
+
     # Chunk the extracted text
     logger.info("Chunking text...")
     chunks = chunk_text(extracted_text, chunk_size, chunk_overlap)

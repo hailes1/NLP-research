@@ -16,7 +16,7 @@ logger = setup_logger(__name__)
 load_dotenv()
 client = settings.openai_client
 
-def standard_retrieval(pdf_path, test_queries, reference_answers=None):
+def similarity_search(pdf_path, test_queries, reference_answers=None):
     """
     standard retrieval on a set of test queries.
     
@@ -78,7 +78,7 @@ def hybrid_search(pdf_path, test_queries, reference_answers=None):
     
     Args:
         pdf_path (str): Path to PDF document to be processed as the knowledge source
-        test_queries (List[str]): List of test queries to evaluate both retrieval methods
+        test_queries (List[str]): List of test queries
         reference_answers (List[str], optional): Reference answers for evaluation metrics
         
     Returns:
@@ -86,7 +86,6 @@ def hybrid_search(pdf_path, test_queries, reference_answers=None):
     """
     logger.info("Starting the hybrid search process")
     chunks, vector_store = process_document(pdf_path)
-    # initialize the bm25 retriever
     
 
     results = []
@@ -110,7 +109,7 @@ def hybrid_search(pdf_path, test_queries, reference_answers=None):
             
             hybrid_docs = ensemble_retriever.get_relevant_documents(query)
 
-                # Extract page_content from each Document for generating a response
+            # Extract page_content from each Document for generating a response
             response_contents = [{"text": doc.page_content} for doc in hybrid_docs]
             hybrid_response = generate_response(query, response_contents, "General")
             

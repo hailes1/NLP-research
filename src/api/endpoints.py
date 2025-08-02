@@ -3,7 +3,7 @@ from api.models import Overview, NewsQuery
 import os
 
 from utils.logger_config import setup_logger
-from research.default_retrieval import standard_retrieval, hybrid_search
+from research.default_retrieval import similarity_search, hybrid_search
 from integration.fetch_news import fetch_guardian_data, fetch_nyt_data, save_news_data
 from utils.generate_request_id import RequestIDGenerator
 
@@ -50,7 +50,7 @@ def chat(overview: Overview):
     to the user's question, returning concise responses for easy evaluation.
     """
     if (overview.search_type == 'standard'):
-        results = standard_retrieval(overview.file_path, overview.question)
+        results = similarity_search(overview.file_path, overview.question)
         simplified_results = [
             {
                 "query": result["query"],
@@ -73,21 +73,3 @@ def chat(overview: Overview):
         "Question": overview.question,
         "results": simplified_results,
     }
-
-@router.post("/news/recent", tags=["News"])
-def summarize_recent_news(newsquery: NewsQuery):
-    """
-    Fetch and summarize recent news articles.
-
-    Retrieves news articles based on a query from the Guardian API and summarizes
-    the content for quick updates. Provides a request ID for tracking these summaries.
-
-    """
-    logger.info("Fetching and summarizing news with query: '%s'", newsquery.query)
-    request_id = RequestIDGenerator.generate_request_id()
-    guardian_data = fetch_guardian_data(newsquery.query)
-    nyt_data = fetch_nyt_data(newsquery.query)
-    news_updates = save_news_data(guardian_data)
-    return {"guardian_news_updates": news_updates, 
-            "nyt_news_updates": nyt_data,
-            "requestID": request_id}

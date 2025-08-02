@@ -72,6 +72,7 @@ def process_html_to_markdown(URL):
     try:
         # Fetch the HTML content
         response = requests.get(URL)
+        logger.info(f'logger.info(f"Fetching HTML content from URL:{response}")')
         response.raise_for_status()  # Raise an exception for HTTP errors
 
         # Parse the HTML content
