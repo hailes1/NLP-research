@@ -34,7 +34,6 @@ def process_document(pdf_path, chunking_strategy, chunk_size=1000, chunk_overlap
     logger.info(f"Created {len(chunks)} text chunks")
     
     # Create embeddings for the text chunks
-    logger.info("Creating embeddings for chunks...")
     chunk_embeddings = create_embeddings(chunks)
     
     # Initialize the vector store

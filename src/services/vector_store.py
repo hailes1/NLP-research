@@ -31,7 +31,7 @@ class SimpleVectorStore:
         self.vectors.append(np.array(embedding))  # Convert embedding to numpy array and add to vectors list
         self.texts.append(text)  # Add the original text to texts list
         self.metadata.append(metadata or {})  # Add metadata to metadata list, default to empty dict if None
-        logger.info(f"Added item to vector store: text='{text[:30]}...', embedding_length={len(embedding)}, metadata={metadata}.")
+        #logger.info(f"Added item to vector store - embedding_length={len(embedding)}, metadata={metadata}.")
 
     def similarity_search(self, query_embedding, k=5, filter_func=None):
         """
@@ -57,13 +57,13 @@ class SimpleVectorStore:
         for i, vector in enumerate(self.vectors):
             # Apply filter if provided
             if filter_func and not filter_func(self.metadata[i]):
-                logger.info(f"Item at index {i} filtered out by filter_func.")
+                #logger.info(f"Item at index {i} filtered out by filter_func.")
                 continue
                 
             # Calculate cosine similarity
             similarity = np.dot(query_vector, vector) / (np.linalg.norm(query_vector) * np.linalg.norm(vector))
             similarities.append((i, similarity)) 
-            logger.info(f"Calculated similarity for index {i}: {similarity:.4f}")
+            #logger.info(f"Calculated similarity for index {i}: {similarity:.4f}")
 
         similarities.sort(key=lambda x: x[1], reverse=True)
         logger.info(f"Sorted similarities: {similarities[:k]}")
@@ -76,7 +76,7 @@ class SimpleVectorStore:
                 "metadata": self.metadata[idx], 
                 "similarity": score 
             })
-            logger.info(f"Top result {i + 1}: text='{self.texts[idx][:30]}...', similarity={score:.4f}, metadata={self.metadata[idx]}")
+            #logger.info(f"Top result {i + 1}: text='{self.texts[idx][:30]}...', similarity={score:.4f}, metadata={self.metadata[idx]}")
 
         logger.info(f"Returning top {len(results)} results from similarity search.")
         return results 

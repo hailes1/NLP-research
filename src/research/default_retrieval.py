@@ -38,9 +38,8 @@ def similarity_search(pdf_path, chunking_strategy, test_queries, reference_answe
     results = []
     try:
         for i, query in enumerate(test_queries):
-            logger.info(f"\n\nQuery {i+1}: {query}")
+            logger.info(f"Query {i+1}: {query}")
             
-            logger.info("\n--- Standard Retrieval ---")
             query_embedding = create_embeddings(query)
             standard_docs = vector_store.similarity_search(query_embedding, k=4)
             logger.info(f"Standard documents retrieved: {standard_docs}")
@@ -59,8 +58,7 @@ def similarity_search(pdf_path, chunking_strategy, test_queries, reference_answe
                 
             results.append(result)
             
-            logger.info("\n--- Responses ---")
-            logger.info(f"Standard: {standard_response[:200]}...")
+            logger.info("Finished the standard retrieval process")
         
         
         return {
