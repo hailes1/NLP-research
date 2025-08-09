@@ -1,10 +1,10 @@
 from fastapi import APIRouter, HTTPException, File, UploadFile
-from api.models import Overview, NewsQuery
+from api.models import Overview, ImageQuery
 import os
 
 from utils.logger_config import setup_logger
 from research.default_retrieval import similarity_search, hybrid_search
-from integration.fetch_news import fetch_guardian_data, fetch_nyt_data, save_news_data
+from research.image_processing import image_summarize
 from utils.generate_request_id import RequestIDGenerator
 
 logger = setup_logger(__name__)
@@ -73,3 +73,43 @@ def chat(overview: Overview):
         "Question": overview.question,
         "results": simplified_results,
     }
+
+@router.post("/upload_image", tags=["Image Processing"])
+async def upload_image(file: UploadFile = File(...)):
+    """
+    Upload an image for processing.
+
+    This endpoint allows users to upload an image file and a question associated with an image 
+    that will be saved for further analysis. The function checks the file type to ensure it is an acceptable image type
+    JPEG, PNG, or GIF, saves the file and returns an answer for the question.
+    """
+    if file.content_type not in ["image/jpeg", "image/png", "image/gif"]:
+        logger.error("The file provided doesn't meet the required format. Only image files are allowed.") 
+        raise HTTPException(status_code=400, 
+                            detail="The file provided doesn't meet the required format. Only image files are allowed.")
+    
+    file_path = f"data/{file.filename}"
+    try:
+        os.makedirs("data", exist_ok=True)
+        with open(file_path, "wb") as f:
+            f.write(await file.read())
+        logger.info(f"File saved to {file_path}")
+    except Exception as e:
+        raise logger.error(status_code=500, 
+                           detail=f"Error saving file: {e}")
+    logger.info(f"File {file.filename} uploaded successfully with content type {file.content_type}")
+    request_id = RequestIDGenerator.generate_request_id()
+
+    return {"request_id": request_id, "file_path": file_path}
+
+@router.post("/analyze_image", tags=["Image Processing"])
+async def process_image(imagequery: ImageQuery):
+    """
+
+    """
+    logger.info(f"Processing image query: {imagequery.question}")
+    logger.info(f"Processing the file path: {imagequery.file_path}")
+    summary = image_summarize(imagequery.file_path, imagequery.question)
+    logger.info(summary)
+
+    return {"summary": summary}

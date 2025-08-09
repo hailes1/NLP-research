@@ -33,3 +33,20 @@ class NewsQuery(BaseModel):
         default="",
         description="Search query for fetching news articles."
     )
+class ImageQuery(BaseModel):
+    question: str = Field(
+        default="What is the main topic of the document?",
+        description="Search query for fetching news articles."
+    )
+    request_id: str = Field(
+        default="",
+        description="Unique identifier for the request, used for tracking and logging purposes."
+    )
+    file_path: str = Field(
+        default="",
+        description="Path to the file that contains the knowledge source."
+    )
+    model: str = Field(
+        default="pixtral-12b-2409",
+        description="Model to be used for image summarization."
+    )
